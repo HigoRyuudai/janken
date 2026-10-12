@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 
 <head>
   <meta charset="utf-8">
@@ -9,6 +9,31 @@
 <body>
   <div th:if="${username}">
     Hi [[${username}]]
+  </div>
+
+  <h2>じゃんけん</h2>
+
+  <p>あなたの手を選んでください。</p>
+
+  <a href="/jankengame?hand=グー">グー</a>
+  <a href="/jankengame?hand=チョキ">チョキ</a>
+  <a href="/jankengame?hand=パー">パー</a>
+
+  <div th:if="${janken}">
+    <p>
+      あなたの手：
+      <span th:text="${janken.myHand}"></span>
+    </p>
+
+    <p>
+      相手の手：
+      <span th:text="${janken.cpuHand}"></span>
+    </p>
+
+    <p>
+      結果：
+      <span th:text="${janken.result}"></span>
+    </p>
   </div>
 </body>
 
