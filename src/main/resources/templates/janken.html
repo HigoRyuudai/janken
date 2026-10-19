@@ -35,6 +35,10 @@
       <span th:text="${janken.result}"></span>
     </p>
   </div>
+  <!-- ログアウト -->
+  <form th:action="@{/logout}" method="post">
+    <button type="submit">ログアウト</button>
+  </form>
 </body>
 
 </html>
