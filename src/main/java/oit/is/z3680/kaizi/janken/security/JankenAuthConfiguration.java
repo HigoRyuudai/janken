@@ -38,7 +38,7 @@ public class JankenAuthConfiguration {
   @Bean
   public InMemoryUserDetailsManager userDetailsService() {
 
-    UserDetails user1 = User.withUsername("user1")
+    UserDetails user1 = User.withUsername("ほんだ")
         .password("{bcrypt}$2y$05$QmaxjsXgmQ4VVYNTpME8me8JFVrIDVVT64MZS/zc9rBFE46TJewiS")
         .roles("USER")
         .build();
