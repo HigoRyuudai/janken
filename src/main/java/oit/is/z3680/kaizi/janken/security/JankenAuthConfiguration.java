@@ -17,17 +17,22 @@ public class JankenAuthConfiguration {
   /**
    * 認可処理に関する設定
    */
+
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http
-        .formLogin(login -> login
-            .permitAll())
+        .authorizeHttpRequests(auth -> auth
+            .requestMatchers("/h2-console/**").permitAll()
+            .requestMatchers("/janken", "/janken/**", "/jankengame").authenticated()
+            .anyRequest().permitAll())
+        .formLogin(login -> login.permitAll())
         .logout(logout -> logout
             .logoutUrl("/logout")
             .logoutSuccessUrl("/"))
-        .authorizeHttpRequests(authz -> authz
-            .requestMatchers("/janken", "/janken/**").authenticated()
-            .anyRequest().permitAll());
+        .csrf(csrf -> csrf
+            .ignoringRequestMatchers("/h2-console/**"))
+        .headers(headers -> headers
+            .frameOptions(frame -> frame.sameOrigin()));
 
     return http.build();
   }
