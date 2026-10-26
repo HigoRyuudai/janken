@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import oit.is.z3680.kaizi.janken.model.User;
 import oit.is.z3680.kaizi.janken.mapper.MatchMapper;
 import oit.is.z3680.kaizi.janken.model.Match;
+import java.util.Random;
 
 @Controller
 public class JankenController {
@@ -95,5 +96,65 @@ public class JankenController {
     model.addAttribute("janken", janken);
 
     return "janken.html";
+  }
+
+  @GetMapping("/fight")
+  public String fight(
+      @RequestParam("id") long opponentId,
+      @RequestParam("hand") String hand,
+      Authentication authentication,
+      ModelMap model) {
+
+    String username = authentication.getName();
+
+    // 自分と対戦相手の情報を取得
+    User me = userMapper.selectByName(username);
+    User opponent = userMapper.selectById(opponentId);
+
+    if (me == null || opponent == null) {
+      return "redirect:/janken";
+    }
+
+    // 選択した手を確認
+    if (!hand.equals("Gu") &&
+        !hand.equals("Choki") &&
+        !hand.equals("Pa")) {
+      return "redirect:/match?id=" + opponentId;
+    }
+
+    // CPUの手をランダムに決定
+    String[] hands = { "Gu", "Choki", "Pa" };
+    String cpuHand = hands[new Random().nextInt(hands.length)];
+
+    // 勝敗判定
+    String result;
+
+    if (hand.equals(cpuHand)) {
+      result = "あいこ";
+    } else if ((hand.equals("Gu") && cpuHand.equals("Choki")) ||
+        (hand.equals("Choki") && cpuHand.equals("Pa")) ||
+        (hand.equals("Pa") && cpuHand.equals("Gu"))) {
+      result = "勝ち";
+    } else {
+      result = "負け";
+    }
+
+    // 対戦結果をデータベースに登録
+    Match match = new Match();
+    match.setUser1(me.getId());
+    match.setUser2(opponent.getId());
+    match.setUser1Hand(hand);
+    match.setUser2Hand(cpuHand);
+
+    matchMapper.insertMatch(match);
+
+    // 結果を画面に渡す
+    model.addAttribute("username", username);
+    model.addAttribute("opponent", opponent);
+    model.addAttribute("myHand", hand);
+    model.addAttribute("opponentHand", cpuHand);
+    model.addAttribute("result", result);
+
+    return "match.html";
   }
 }
