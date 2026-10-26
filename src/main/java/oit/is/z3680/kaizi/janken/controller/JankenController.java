@@ -54,6 +54,19 @@ public class JankenController {
     return "janken.html";
   }
 
+  @GetMapping("/match")
+  public String match(@RequestParam("id") long id,
+      Authentication authentication,
+      ModelMap model) {
+    String username = authentication.getName();
+    User opponent = userMapper.selectById(id);
+
+    model.addAttribute("username", username);
+    model.addAttribute("opponent", opponent);
+
+    return "match.html";
+  }
+
   @GetMapping("/jankengame")
   public String jankengame(
       @RequestParam String hand,
