@@ -1,6 +1,7 @@
 
 package oit.is.z3680.kaizi.janken.controller;
 
+import oit.is.z3680.kaizi.janken.mapper.UserMapper;
 import oit.is.z3680.kaizi.janken.model.Entry;
 import oit.is.z3680.kaizi.janken.model.janken;
 
@@ -10,15 +11,19 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import java.util.ArrayList;
+import oit.is.z3680.kaizi.janken.model.User;
 
 @Controller
 public class JankenController {
 
   private final Entry entry;
+  private final UserMapper userMapper;
 
   // EntryをDIで受け取る
-  public JankenController(Entry entry) {
+  public JankenController(Entry entry, UserMapper userMapper) {
     this.entry = entry;
+    this.userMapper = userMapper;
   }
 
   @GetMapping("/janken")
@@ -27,8 +32,10 @@ public class JankenController {
 
     entry.addUser(username);
 
+    ArrayList<User> users = userMapper.selectAll();
+
     model.addAttribute("username", username);
-    model.addAttribute("users", entry.getUsers());
+    model.addAttribute("users", users);
 
     return "janken.html";
   }
