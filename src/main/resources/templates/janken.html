@@ -37,7 +37,7 @@
   </div>
 
   <hr>
-  
+
   <h2>エントリー</h2>
 
   <ul>
@@ -45,6 +45,17 @@
       <span th:text="${user.name}"></span>
     </li>
   </ul>
+
+  <hr>
+  <h2>試合結果</h2>
+  <div th:each="match : ${matches}">
+    id:<span th:text="${match.id}"></span>
+    user1:<span th:text="${match.user1}"></span>
+    user2:<span th:text="${match.user2}"></span>
+    user1の手:<span th:text="${match.user1Hand}"></span>
+    user2の手:<span th:text="${match.user2Hand}"></span>
+  </div>
+
 
 
   <hr>

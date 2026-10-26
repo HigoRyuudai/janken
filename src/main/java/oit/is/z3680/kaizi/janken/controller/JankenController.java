@@ -13,17 +13,21 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import java.util.ArrayList;
 import oit.is.z3680.kaizi.janken.model.User;
+import oit.is.z3680.kaizi.janken.mapper.MatchMapper;
+import oit.is.z3680.kaizi.janken.model.Match;
 
 @Controller
 public class JankenController {
 
   private final Entry entry;
   private final UserMapper userMapper;
+  private final MatchMapper matchMapper;
 
   // EntryをDIで受け取る
-  public JankenController(Entry entry, UserMapper userMapper) {
+  public JankenController(Entry entry, UserMapper userMapper, MatchMapper matchMapper) {
     this.entry = entry;
     this.userMapper = userMapper;
+    this.matchMapper = matchMapper;
   }
 
   @GetMapping("/janken")
@@ -33,9 +37,11 @@ public class JankenController {
     entry.addUser(username);
 
     ArrayList<User> users = userMapper.selectAll();
+    ArrayList<Match> matches = matchMapper.selectAll();
 
     model.addAttribute("username", username);
     model.addAttribute("users", users);
+    model.addAttribute("matches", matches);
 
     return "janken.html";
   }
