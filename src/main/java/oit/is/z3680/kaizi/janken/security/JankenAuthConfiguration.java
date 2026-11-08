@@ -53,6 +53,11 @@ public class JankenAuthConfiguration {
         .roles("USER")
         .build();
 
-    return new InMemoryUserDetailsManager(user1, user2);
+    UserDetails user3 = User.withUsername("いがき")
+        .password("{noop}isdev")
+        .roles("USER")
+        .build();
+
+    return new InMemoryUserDetailsManager(user1, user2, user3);
   }
 }

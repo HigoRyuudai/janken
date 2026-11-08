@@ -7,6 +7,7 @@ public class Match {
   private long user2;
   private String user1Hand;
   private String user2Hand;
+  private boolean isActive;
 
   public Match() {
   }
@@ -49,5 +50,13 @@ public class Match {
 
   public void setUser2Hand(String user2Hand) {
     this.user2Hand = user2Hand;
+  }
+
+  public boolean isActive() {
+    return isActive;
+  }
+
+  public void setActive(boolean isActive) {
+    this.isActive = isActive;
   }
 }
