@@ -11,14 +11,6 @@
     Hi <span th:text="${username}"></span>
   </div>
 
-  <h2>じゃんけん</h2>
-
-  <p>あなたの手を選んでください。</p>
-
-  <a href="/jankengame?hand=グー">グー</a>
-  <a href="/jankengame?hand=チョキ">チョキ</a>
-  <a href="/jankengame?hand=パー">パー</a>
-
   <div th:if="${janken}">
     <p>
       あなたの手：
@@ -47,7 +39,22 @@
   </ul>
 
   <hr>
+
+  <h2>アクティブな試合</h2>
+
+  <div th:each="matchInfo : ${matchInfos}">
+    <div th:if="${matchInfo.active}">
+      id:<span th:text="${matchInfo.id}"></span>
+      user1:<span th:text="${matchInfo.user1}"></span>
+      user2:<span th:text="${matchInfo.user2}"></span>
+      isActive:<span th:text="${matchInfo.active}"></span>
+    </div>
+  </div>
+
+  <hr>
+
   <h2>試合結果</h2>
+
   <div th:each="match : ${matches}">
     id:<span th:text="${match.id}"></span>
     user1:<span th:text="${match.user1}"></span>
@@ -55,8 +62,6 @@
     user1の手:<span th:text="${match.user1Hand}"></span>
     user2の手:<span th:text="${match.user2Hand}"></span>
   </div>
-
-
 
   <hr>
 

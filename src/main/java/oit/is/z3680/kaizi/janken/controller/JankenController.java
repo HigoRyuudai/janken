@@ -16,19 +16,28 @@ import oit.is.z3680.kaizi.janken.model.User;
 import oit.is.z3680.kaizi.janken.mapper.MatchMapper;
 import oit.is.z3680.kaizi.janken.model.Match;
 import java.util.Random;
+import oit.is.z3680.kaizi.janken.mapper.MatchInfoMapper;
+import oit.is.z3680.kaizi.janken.model.MatchInfo;
 
 @Controller
 public class JankenController {
 
+  private final MatchInfoMapper matchInfoMapper;
   private final Entry entry;
   private final UserMapper userMapper;
   private final MatchMapper matchMapper;
 
   // EntryをDIで受け取る
-  public JankenController(Entry entry, UserMapper userMapper, MatchMapper matchMapper) {
+  public JankenController(
+      Entry entry,
+      UserMapper userMapper,
+      MatchMapper matchMapper,
+      MatchInfoMapper matchInfoMapper) {
+
     this.entry = entry;
     this.userMapper = userMapper;
     this.matchMapper = matchMapper;
+    this.matchInfoMapper = matchInfoMapper;
   }
 
   @GetMapping("/janken")
@@ -39,10 +48,12 @@ public class JankenController {
 
     ArrayList<User> users = userMapper.selectAll();
     ArrayList<Match> matches = matchMapper.selectAll();
+    ArrayList<MatchInfo> matchInfos = matchInfoMapper.selectAll();
 
     model.addAttribute("username", username);
     model.addAttribute("users", users);
     model.addAttribute("matches", matches);
+    model.addAttribute("matchInfos", matchInfos);
 
     return "janken.html";
   }
@@ -66,6 +77,41 @@ public class JankenController {
     model.addAttribute("opponent", opponent);
 
     return "match.html";
+  }
+
+  @GetMapping("/wait")
+  public String wait(
+      @RequestParam("id") long opponentId,
+      @RequestParam("hand") String hand,
+      Authentication authentication,
+      ModelMap model) {
+
+    String username = authentication.getName();
+
+    User me = userMapper.selectByName(username);
+    User opponent = userMapper.selectById(opponentId);
+
+    if (me == null || opponent == null) {
+      return "redirect:/janken";
+    }
+
+    if (!hand.equals("Gu") &&
+        !hand.equals("Choki") &&
+        !hand.equals("Pa")) {
+      return "redirect:/match?id=" + opponentId;
+    }
+
+    MatchInfo matchInfo = new MatchInfo();
+    matchInfo.setUser1(me.getId());
+    matchInfo.setUser2(opponent.getId());
+    matchInfo.setUser1Hand(hand);
+    matchInfo.setActive(true);
+
+    matchInfoMapper.insertMatchInfo(matchInfo);
+
+    model.addAttribute("username", username);
+
+    return "wait.html";
   }
 
   @GetMapping("/jankengame")

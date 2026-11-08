@@ -17,13 +17,9 @@
     <span th:text="${opponent.name}"></span>
   </h2>
 
-  <a th:href="@{/fight(id=${opponent.id}, hand='Gu')}">ぐー</a>
-  <a th:href="@{/fight(id=${opponent.id}, hand='Choki')}">ちょき</a>
-  <a th:href="@{/fight(id=${opponent.id}, hand='Pa')}">ぱー</a>
-
-  <p>あなたの手 <span th:text="${myHand}"></span></p>
-  <p>相手の手 <span th:text="${opponentHand}"></span></p>
-  <p>結果 <span th:text="${result}"></span></p>
+  <a th:href="@{/wait(id=${opponent.id}, hand='Gu')}">ぐー</a>
+  <a th:href="@{/wait(id=${opponent.id}, hand='Choki')}">ちょき</a>
+  <a th:href="@{/wait(id=${opponent.id}, hand='Pa')}">ぱー</a>
 
   <a href="/janken">もどる</a>
 </body>
