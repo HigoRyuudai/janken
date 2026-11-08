@@ -11,11 +11,13 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
 import java.util.ArrayList;
+import java.util.Random;
+
 import oit.is.z3680.kaizi.janken.model.User;
 import oit.is.z3680.kaizi.janken.mapper.MatchMapper;
 import oit.is.z3680.kaizi.janken.model.Match;
-import java.util.Random;
 import oit.is.z3680.kaizi.janken.mapper.MatchInfoMapper;
 import oit.is.z3680.kaizi.janken.model.MatchInfo;
 
@@ -27,7 +29,6 @@ public class JankenController {
   private final UserMapper userMapper;
   private final MatchMapper matchMapper;
 
-  // EntryをDIで受け取る
   public JankenController(
       Entry entry,
       UserMapper userMapper,
@@ -62,14 +63,17 @@ public class JankenController {
   public String jankenPost(
       @RequestParam String username,
       ModelMap model) {
+
     model.addAttribute("username", username);
     return "janken.html";
   }
 
   @GetMapping("/match")
-  public String match(@RequestParam("id") long id,
+  public String match(
+      @RequestParam("id") long id,
       Authentication authentication,
       ModelMap model) {
+
     String username = authentication.getName();
     User opponent = userMapper.selectById(id);
 
@@ -91,7 +95,7 @@ public class JankenController {
     User me = userMapper.selectByName(username);
     User opponent = userMapper.selectById(opponentId);
 
-    if (me == null || opponent == null) {
+    if (me == null || opponent == null || me.getId() == opponentId) {
       return "redirect:/janken";
     }
 
@@ -101,13 +105,40 @@ public class JankenController {
       return "redirect:/match?id=" + opponentId;
     }
 
-    MatchInfo matchInfo = new MatchInfo();
-    matchInfo.setUser1(me.getId());
-    matchInfo.setUser2(opponent.getId());
-    matchInfo.setUser1Hand(hand);
-    matchInfo.setActive(true);
+    // 自分が後手として参加できる待機中の試合を検索
+    MatchInfo waitingMatch = matchInfoMapper.selectActiveByUserId(me.getId());
 
-    matchInfoMapper.insertMatchInfo(matchInfo);
+    if (waitingMatch == null || waitingMatch.getUser1() != opponentId) {
+
+      // 待機中の相手がいない場合、自分を先手として登録
+      MatchInfo matchInfo = new MatchInfo();
+      matchInfo.setUser1(me.getId());
+      matchInfo.setUser2(opponent.getId());
+      matchInfo.setUser1Hand(hand);
+      matchInfo.setActive(true);
+
+      matchInfoMapper.insertMatchInfo(matchInfo);
+
+    } else {
+
+      // 待機中の相手がいる場合、試合を成立させる
+      Match match = new Match();
+
+      // 先手の情報
+      match.setUser1(waitingMatch.getUser1());
+      match.setUser2(waitingMatch.getUser2());
+      match.setUser1Hand(waitingMatch.getUser1Hand());
+
+      // 後手の手
+      match.setUser2Hand(hand);
+
+      // 対戦結果を登録
+      match.setActive(true);
+      matchMapper.insertMatch(match);
+
+      // 待機状態を解除
+      matchInfoMapper.updateActiveFalse(waitingMatch.getId());
+    }
 
     model.addAttribute("username", username);
 
