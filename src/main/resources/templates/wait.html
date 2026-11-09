@@ -11,7 +11,36 @@
 
   <h2>Hi <span th:text="${username}"></span></h2>
 
-  <a href="/janken">もどる</a>
+  <div id="waiting">
+    <p>対戦結果を待っています...</p>
+  </div>
+
+  <div id="kekka" style="display: none;">
+    <h2>対戦結果</h2>
+    <p id="matchResult"></p>
+    <a href="/janken">戻る</a>
+  </div>
+
+  <script>
+    const eventSource = new EventSource("/asyncKekka");
+
+    eventSource.addEventListener("kekka", function (event) {
+      const match = JSON.parse(event.data);
+
+      document.getElementById("waiting").style.display = "none";
+
+      document.getElementById("matchResult").textContent =
+        "user1: " + match.user1 +
+        " user2: " + match.user2 +
+        " user1Hand: " + match.user1Hand +
+        " user2Hand: " + match.user2Hand;
+
+      document.getElementById("kekka").style.display = "block";
+
+      eventSource.close();
+    });
+  </script>
+
 </body>
 
 </html>
