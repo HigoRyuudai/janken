@@ -20,6 +20,8 @@ import oit.is.z3680.kaizi.janken.mapper.MatchMapper;
 import oit.is.z3680.kaizi.janken.model.Match;
 import oit.is.z3680.kaizi.janken.mapper.MatchInfoMapper;
 import oit.is.z3680.kaizi.janken.model.MatchInfo;
+import oit.is.z3680.kaizi.janken.AsyncKekka;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @Controller
 public class JankenController {
@@ -28,17 +30,20 @@ public class JankenController {
   private final Entry entry;
   private final UserMapper userMapper;
   private final MatchMapper matchMapper;
+  private final AsyncKekka asyncKekka;
 
   public JankenController(
       Entry entry,
       UserMapper userMapper,
       MatchMapper matchMapper,
-      MatchInfoMapper matchInfoMapper) {
+      MatchInfoMapper matchInfoMapper,
+      AsyncKekka asyncKekka) {
 
     this.entry = entry;
     this.userMapper = userMapper;
     this.matchMapper = matchMapper;
     this.matchInfoMapper = matchInfoMapper;
+    this.asyncKekka = asyncKekka;
   }
 
   @GetMapping("/janken")
@@ -141,6 +146,7 @@ public class JankenController {
     }
 
     model.addAttribute("username", username);
+    model.addAttribute("userId", me.getId());
 
     return "wait.html";
   }
@@ -233,5 +239,22 @@ public class JankenController {
     model.addAttribute("result", result);
 
     return "match.html";
+  }
+
+  @GetMapping("/asyncKekka")
+  public SseEmitter asyncKekka(Authentication authentication) {
+
+    String username = authentication.getName();
+    User me = userMapper.selectByName(username);
+
+    SseEmitter emitter = new SseEmitter(0L);
+
+    if (me != null) {
+      asyncKekka.asyncShowMatch(emitter, me.getId());
+    } else {
+      emitter.complete();
+    }
+
+    return emitter;
   }
 }

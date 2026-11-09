@@ -2,9 +2,13 @@
 package oit.is.z3680.kaizi.janken.mapper;
 
 import java.util.ArrayList;
+
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.annotations.Param;
+
 import oit.is.z3680.kaizi.janken.model.Match;
 
 @Mapper
@@ -18,4 +22,19 @@ public interface MatchMapper {
       VALUES (#{user1}, #{user2}, #{user1Hand}, #{user2Hand}, #{isActive})
       """)
   int insertMatch(Match match);
+
+  @Select("""
+      SELECT id, user1, user2, user1Hand, user2Hand, isActive
+      FROM matches
+      WHERE user1 = #{userId}
+      AND isActive = TRUE
+      """)
+  Match selectActiveMatchByUserId(@Param("userId") long userId);
+
+  @Update("""
+      UPDATE matches
+      SET isActive = FALSE
+      WHERE id = #{id}
+      """)
+  int updateActiveFalse(@Param("id") long id);
 }
